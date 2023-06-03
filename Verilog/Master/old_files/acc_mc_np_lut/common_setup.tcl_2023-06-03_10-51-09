@@ -1,0 +1,159 @@
+
+
+
+puts "RM-Info: Running script [info script]\n"
+
+
+set FDSOI_DIR $::env(CMOS28FDSOI_DIR)
+
+set DESIGN_LABEL                 "picorv32_top"  ;#  The name of the top-level design
+
+set DESIGN_REF_DATA_PATH          "${DESIGN_LABEL}"  ;#  Absolute path prefix variable for library/design data.
+                                       #  Use this variable to prefix the common absolute path  
+                                       #  to the common variables defined below.
+                                       #  Absolute paths are mandatory for hierarchical 
+                                       #  reference methodology flow.
+
+
+set file_handle [open "../../sim/variables.txt" r]
+
+# Read the values from the file and assign them to variables
+set K [gets $file_handle]
+set N [gets $file_handle]
+set LUT_SIZE [gets $file_handle]
+set WIDTH_COEFFICIENT [gets $file_handle]
+set NUM_ADD_CLK [gets $file_handle]
+set NUM_ADDER_STAGES [gets $file_handle]
+
+set NUM_INPUTS_S3 [gets $file_handle]
+set NUM_INPUTS_S2 [gets $file_handle]
+set NUM_INPUTS_S1 [gets $file_handle]
+set NUM_S3_ADDERS [gets $file_handle]
+set NUM_S2_ADDERS [gets $file_handle]
+set NUM_S1_ADDERS [gets $file_handle]
+
+set CLK_PERIOD [gets $file_handle]
+set CLK_PERIOD_HALF [gets $file_handle]
+
+set N_MAX [gets $file_handle]
+set K_MAX [gets $file_handle]
+
+
+# Close the file
+close $file_handle
+
+set PARAM_LIST "WIDTH_COEFFICIENT=${WIDTH_COEFFICIENT}, K=${K}, N=${N}, LUT_SIZE=${LUT_SIZE}, NUM_ADD_CLK=${NUM_ADD_CLK}, NUM_ADDER_STAGES=${NUM_ADDER_STAGES}, "
+append PARAM_LIST "NUM_INPUTS_S3=${NUM_INPUTS_S3}, NUM_INPUTS_S2=${NUM_INPUTS_S2}, NUM_INPUTS_S1=${NUM_INPUTS_S1}, "
+append PARAM_LIST "NUM_S3_ADDERS=${NUM_S3_ADDERS}, NUM_S2_ADDERS=${NUM_S2_ADDERS}, NUM_S1_ADDERS=${NUM_S1_ADDERS}, "
+append PARAM_LIST "N_MAX=${N_MAX}, K_MAX=${K_MAX}"
+
+set VOLTAGE 1.10
+set CORNER tt
+set TEMP 25C
+set THRESHOLD LR
+set TRACE_HEIGHT 12
+set TYPE_SHORT SC
+
+set TYPE CORE
+set TYCK CLK
+
+
+
+if { [info exists ::env(VOLTAGE)] } {
+  set VOLTAGE $::env(VOLTAGE)
+  # set VOLTAGE [string replace ${VOLTAGE} 1 1 .]
+}
+if { [info exists ::env(CORNER)] } {
+  set CORNER $::env(CORNER)
+}
+if { [info exists ::env(TEMP)] } {
+  set TEMP $::env(TEMP)
+}
+if { [info exists ::env(THRESHOLD)] } {
+  set THRESHOLD $::env(THRESHOLD)
+}
+if { [info exists ::env(TRACE_HEIGHT)] } {
+  set TRACE_HEIGHT $::env(TRACE_HEIGHT)
+}
+if { [info exists ::env(TYPE_SHORT)] } {
+  set TYPE_SHORT $::env(TYPE_SHORT)
+}
+
+puts "VOLTAGE: ${VOLTAGE}"
+puts "CORNER: ${CORNER}"
+puts "TEMP: ${TEMP}"
+puts "THRESHOLD: ${THRESHOLD}"
+puts "TRACE_HEIGHT: ${TRACE_HEIGHT}"
+puts "TYPE_SHORT: ${TYPE_SHORT}"
+
+
+if { [string equal ${THRESHOLD} LR] } {
+  set TARGET_LIB C28SOI_${TYPE_SHORT}_${TRACE_HEIGHT}_${TYPE}_${THRESHOLD}_${CORNER}28_${VOLTAGE}V_${TEMP}
+}
+set TARGET_LIB_CLK C28SOI_${TYPE_SHORT}_${TRACE_HEIGHT}_CLK_${THRESHOLD}_${CORNER}28_${VOLTAGE}V_${TEMP}
+# set TARGET_LIB_CLK C28SOI_SC_12_CLK_LR_tt28_1.10V_25C
+# set TARGET_LIB C28SOI_SC_12_CORE_LR_tt28_1.10V_25C
+
+
+
+##########################################################################################
+# Library Setup Variables
+##########################################################################################
+
+# For the following variables, use a blank space to separate multiple entries.
+# Example: set TARGET_LIBRARY_FILES "lib1.db lib2.db lib3.db"
+
+set ADDITIONAL_SEARCH_PATH        [glob "${FDSOI_DIR}/C28SOI_SC_*/*/libs"]  ;#  Additional search path to be added to the default search path (used by all tools)
+
+set TARGET_LIBRARY_FILES          "/eda/kits/stm/28nm_fdsoi_v1.5a/C28SOI_${TYPE_SHORT}_${TRACE_HEIGHT}_${TYPE}_${THRESHOLD}/5.1-05.81/libs/${TARGET_LIB}.db"  ;#  Target technology logical libraries (used by DC, DCCNT)
+set TARGET_LIBRARY_FILES_LIB      "/eda/kits/stm/28nm_fdsoi_v1.5a/C28SOI_${TYPE_SHORT}_${TRACE_HEIGHT}_${TYPE}_${THRESHOLD}/5.1-05.81/libs/${TARGET_LIB}.lib"  ;#  Target technology logical libraries (used by DC, DCCNT)
+set ADDITIONAL_LINK_LIB_FILES     "/eda/kits/stm/28nm_fdsoi_v1.5a/C28SOI_${TYPE_SHORT}_${TRACE_HEIGHT}_${TYCK}_${THRESHOLD}/5.1-06.81/libs/${TARGET_LIB_CLK}.db" ;#  Extra link logical libraries not included in TARGET_LIBRARY_FILES (used by DC, DCNXT)
+
+
+set MIN_LIBRARY_FILES             ""  ;#  List of max min library pairs "max1 min1 max2 min2 max3 min3"...
+
+set MIN_ROUTING_LAYER            ""   ;# Min routing layer
+set MAX_ROUTING_LAYER            ""   ;# Max routing layer
+
+set LIBRARY_DONT_USE_FILE        ""   ;# Tcl file with library modifications for dont_use
+
+
+
+
+
+set VERSION 1
+if { [info exists ::env(VERSION)] } {
+  set VERSION $::env(VERSION)
+}
+puts "RTL VERSION: ${DESIGN_LABEL}"
+
+# set RTL_SOURCE_FILES  "../rtl/decimation_filter_v${VERSION}.sv"      ;# Enter the list of source RTL files if reading from RTL
+set source_file [open  "../../src/sources.txt" r]
+set file_content [read $source_file]
+close $source_file
+set RTL_SOURCE_FILES [split $file_content "\n"]
+
+# The following variables are used by scripts in the rm_dc_scripts folder to direct 
+# the location of the output files.
+set REPORTS_DIR "reports"
+
+if {$VERSION eq "acc_mcKvar"} {
+  set RESULTS_DIR "results_N${N}_K_MAX${K_MAX}"
+} elseif {$VERSION eq "acc_mcNvar"} {
+  set RESULTS_DIR "results_N_MAX${N_MAX}_K${K}"
+} elseif {$VERSION eq "acc_mc_paramKN_downsample"} {
+  set RESULTS_DIR "results_N_MAX${N_MAX}_K_MAX${K_MAX}"
+} elseif {$VERSION eq "acc_mc_paramKN_downsample_new"} {
+  set RESULTS_DIR "results_N_MAX${N_MAX}_K_MAX${K_MAX}"
+} else {
+  set RESULTS_DIR "results_N${N}_K${K}"
+}
+
+
+file mkdir ${REPORTS_DIR}
+file mkdir ${RESULTS_DIR}
+puts "Results directory: ${RESULTS_DIR}"
+
+
+puts "RM-Info: Completed script [info script]\n"
+

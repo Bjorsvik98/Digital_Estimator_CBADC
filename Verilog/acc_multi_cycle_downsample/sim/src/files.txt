@@ -1,0 +1,9 @@
+/home/anbjors/pro/acc_multi_cycle_downsample/src/FIR_pkg.sv
+/home/anbjors/pro/acc_multi_cycle_downsample/src/multi_cycle_adder.sv
+/home/anbjors/pro/acc_multi_cycle_downsample/src/mca_add_sub.sv
+/home/anbjors/pro/acc_multi_cycle_downsample/src/mca_single_as.sv
+/home/anbjors/pro/acc_multi_cycle_downsample/src/mca_hierchical_adder.sv
+/home/anbjors/pro/acc_multi_cycle_downsample/src/accelerator.sv
+/home/anbjors/pro/acc_multi_cycle_downsample/src/picorv32.v
+/home/anbjors/pro/acc_multi_cycle_downsample/src/picorv32_top.v
+/home/anbjors/pro/acc_multi_cycle_downsample/sim/src/tb_picorv32.v

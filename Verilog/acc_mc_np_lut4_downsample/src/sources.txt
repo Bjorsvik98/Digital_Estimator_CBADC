@@ -1,0 +1,8 @@
+../../src/FIR_pkg.sv
+../../src/mca_lut.sv
+../../src/multi_cycle_adder.sv
+../../src/mca_single_as.sv
+../../src/mca_hierchical_adder.sv
+../../src/accelerator.sv
+../../src/picorv32.v
+../../src/picorv32_top.v

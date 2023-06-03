@@ -1,0 +1,8 @@
+../src/tb_picorv32.v
+../../src/picorv32_top.v
+../../src/picorv32.v
+../../src/accelerator.sv
+../../src/mca_hierchical_adder.sv
+../../src/mca_add_sub.sv
+../../src/multi_clk_adder.sv
+../../src/FIR_pkg.sv
