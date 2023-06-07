@@ -1,5 +1,0 @@
-../../src/picorv32.v
-../../src/picorv32_top.v
-../../src/FIR_pkg.sv
-../../src/accelerator.sv
-../../src/fir_adder.sv

@@ -1,2 +1,0 @@
-../../syn/DC/results/picorv32_top.mapped.v
-../../sim/src/tb_picorv32_gls.v
